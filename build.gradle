@@ -1,0 +1,55 @@
+group 'io.johnroach'
+version '1.0-SNAPSHOT'
+
+apply plugin: "groovy"
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    drivers = ["lambda"]
+    ext {
+        groovyVersion = '2.4.7'
+        gebVersion = '0.13.1'
+        seleniumVersion = '2.53.1'
+        seleniumClientFactoryVersion = '1.2'
+        seleniumRemoteDriver = '2.53.1'
+        junitVersion = '4.12'
+        slf4jVersion = '1.7.13'
+    }
+}
+
+dependencies {
+    testCompile "org.gebish:geb-spock:$gebVersion"
+    testCompile("org.spockframework:spock-core:1.0-groovy-2.4") {
+        exclude group: "org.codehaus.groovy"
+    }
+    testCompile "org.gebish:geb-gradle:$gebVersion"
+
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
+
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumRemoteDriver"
+}
+
+
+task "geb-lambdatest"(type: Test) {
+    println "Starting Test suite with LambdaTest"
+    reports {
+        html.destination = reporting.file("$name/tests")
+        junitXml.destination = file("$buildDir/test-results/$name")
+    }
+
+    outputs.upToDateWhen { false }
+
+    systemProperty "username", findProperty("username")
+    systemProperty "key", findProperty("key")
+    systemProperty "deviceName", findProperty("deviceName")
+    systemProperty "platform", findProperty("platform")
+    systemProperty "browserName", findProperty("browserName")
+    systemProperty "testDriver", "lambda"
+    systemProperty "geb.build.reportsDir", reporting.file("$name/geb")
+}
